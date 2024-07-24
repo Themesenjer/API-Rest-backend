@@ -1,12 +1,12 @@
 package main
 
 import (
-	_ "login-signup-api/docs"
-	"login-signup-api/handlers"
-
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+    "login-signup-api/handlers"
+    "login-signup-api/middleware"
+    _ "login-signup-api/docs"
+    "github.com/gin-gonic/gin"
+    ginSwagger "github.com/swaggo/gin-swagger"
+    swaggerFiles "github.com/swaggo/files"
 )
 
 // @title Login Signup API
@@ -16,14 +16,22 @@ import (
 // @BasePath /
 
 func main() {
-	r := gin.Default()
+    r := gin.Default()
 
-	// Swagger setup
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    // Swagger setup
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Routes
-	r.POST("/signup", handlers.SignUp)
-	r.POST("/login", handlers.Login)
+    // Public routes
+    r.POST("/signup", handlers.SignUp)
+    r.POST("/login", handlers.Login)
 
-	r.Run(":8080")
+    // Protected routes
+    protected := r.Group("/")
+    protected.Use(middleware.Auth())
+    {
+        // Define protected routes here
+        // Example: protected.GET("/profile", handlers.Profile)
+    }
+
+    r.Run(":8080")
 }
